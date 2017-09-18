@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+    http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+    http://code.alibabatech.com/schema/dubbo 
+    http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+ 
+    <!-- 提供方应用信息，用于计算依赖关系 -->
+     <dubbo:application name="dubbo-ta-consumer" /> 
+
+ 	<!-- 使用zookeeper注册中心暴露服务地址 -->
+  <!--   <dubbo:registry protocol="zookeeper" address="${zk.server}" /> -->
+  
+  	<dubbo:provider timeout="600000" />
+    <dubbo:consumer timeout="600000" />
+
+ 	<!-- 生成远程服务代理，可以和本地bean一样使用demoService -->
+    <dubbo:reference id="taService"
+		interface="com.zhong.ta.api.service.ITaService"
+		version="1.0.0" protocol="http" url="${svc.http.ta}/api/taSvc" />
+
+
+    <!-- dubbo monitor 监控 -->
+    <dubbo:monitor protocol="registry" />
+
+</beans>
+
+<dubbo:reference id="taService"
+		interface="com.zhong.ta.api.service.ITaService"
+		version="1.0.0" protocol="http" url="${svc.http.ta}/api/taSvc" />
+
+<!-- 提供方应用信息，用于计算依赖关系  -->   
+    <dubbo:application name="ta"/>
+  
+    <dubbo:registry protocol="zookeeper" address="${zk.server}" />
+    
+    <dubbo:monitor protocol="registry" />
+    
+    <dubbo:provider timeout="60000" retries="0" loadbalance="roundrobin" />
+    <dubbo:consumer timeout="60000" check="false" />
+    
+    <!-- <dubbo:protocol name="dubbo" port="20880" /> -->
+    <dubbo:protocol host="${biz.http.host}" name="http" port="${biz.http.port}" server="servlet" contextpath="${biz.http.contextpath}" />
+    <!-- <dubbo:protocol name="hessian" port="${biz.http.port}" server="servlet" contextpath="${biz.http.contextpath}" /> -->
+    
+    
+    <dubbo:service ref="taService" interface="com.zhong.ta.api.service.ITaService" version="1.1" protocol="http" path="api/taSvc" timeout="60000" />
+    <bean id="taService" class="com.zhong.ta.api.service.impl.TaServiceImpl" />
+
+
